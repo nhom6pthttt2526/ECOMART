@@ -37,8 +37,8 @@
         .page-section { display: none !important; opacity: 0; transition: opacity 0.3s ease-in-out; }
         .page-section.active { display: block !important; opacity: 1; }
         
-        .admin-tab-content { display: none; }
-        .admin-tab-content.active { display: block; }
+        .admin-tab-content, .user-tab-content { display: none; }
+        .admin-tab-content.active, .user-tab-content.active { display: block; }
         
         /* Toast notification */
         #toast {
@@ -98,14 +98,9 @@
                     </button>
                 </div>
 
-                <div id="ui-nav-user" class="hidden flex items-center space-x-4">
-                    <span id="ui-user-name" class="font-bold text-gray-700 hidden sm:block">Chào, Bạn</span>
-                    <button type="button" id="ui-nav-dashboard-btn" onclick="app.navigate('dashboard')" class="text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition text-sm sm:text-base">
-                        Quản lý
-                    </button>
-                    <button type="button" onclick="app.logout()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Đăng xuất">
-                        <i data-lucide="log-out" class="w-5 h-5"></i>
-                    </button>
+                <!-- Khu vực User Nav (Sẽ được JS tự động điền tùy theo Admin hay Khách) -->
+                <div id="ui-nav-user" class="hidden flex items-center space-x-2 sm:space-x-3">
+                    <!-- Dữ liệu render từ JS -->
                 </div>
             </div>
         </div>
@@ -292,10 +287,10 @@
             </div>
         </div>
 
-        <!-- =================== PAGE: CUSTOMER DASHBOARD =================== -->
+        <!-- =================== PAGE: CUSTOMER DASHBOARD (ĐƠN HÀNG) =================== -->
         <div id="page-dashboard-user" class="page-section">
             <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
-                <i data-lucide="package" class="w-6 h-6 mr-2 text-blue-600"></i> Đơn hàng của tôi
+                <i data-lucide="package" class="w-6 h-6 mr-2 text-organic-600"></i> Đơn hàng của tôi
             </h2>
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="overflow-x-auto">
@@ -317,6 +312,46 @@
             </div>
         </div>
 
+        <!-- =================== PAGE: PROFILE =================== -->
+        <div id="page-profile" class="page-section">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+                    <i data-lucide="user-circle" class="w-6 h-6 mr-2 text-blue-600"></i> Quản lý Tài khoản
+                </h2>
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 border-b border-gray-100 pb-4 flex items-center">
+                        <i data-lucide="contact" class="w-5 h-5 mr-2 text-organic-600"></i> Thông tin cá nhân
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm">Họ và Tên</label>
+                            <input type="text" id="txtProfileName" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-organic-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm">Số điện thoại</label>
+                            <input type="tel" id="txtProfilePhone" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-organic-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm">Địa chỉ giao hàng mặc định</label>
+                            <textarea id="txtProfileAddress" rows="2" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-organic-500 outline-none transition"></textarea>
+                        </div>
+                        <button type="button" onclick="app.updateProfile()" class="w-full bg-organic-600 hover:bg-organic-700 text-white font-bold py-3.5 rounded-xl transition shadow-md mt-4">
+                            Cập nhật thông tin
+                        </button>
+                        
+                        <!-- Phân cách -->
+                        <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <span class="text-gray-500 text-sm">Bạn muốn thay đổi mật khẩu đăng nhập?</span>
+                            <button type="button" onclick="app.openPasswordModal()" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition flex items-center">
+                                <i data-lucide="shield-check" class="w-4 h-4 mr-2 text-blue-600"></i> Thay đổi mật khẩu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- =================== PAGE: ADMIN DASHBOARD =================== -->
         <div id="page-dashboard-admin" class="page-section">
             <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
@@ -326,6 +361,7 @@
             <!-- Admin Navigation Tabs -->
             <div class="flex space-x-2 overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide">
                 <button type="button" onclick="app.switchAdminTab('overview')" id="btn-admin-overview" class="px-5 py-3 font-bold border-b-2 border-organic-600 text-organic-600 transition whitespace-nowrap">Tổng quan & Báo cáo</button>
+                <button type="button" onclick="app.switchAdminTab('inventory')" id="btn-admin-inventory" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Tồn kho</button>
                 <button type="button" onclick="app.switchAdminTab('orders')" id="btn-admin-orders" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Đơn hàng</button>
                 <button type="button" onclick="app.switchAdminTab('products')" id="btn-admin-products" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Sản phẩm</button>
                 <button type="button" onclick="app.switchAdminTab('customers')" id="btn-admin-customers" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Khách hàng</button>
@@ -407,7 +443,35 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Quản lý Đơn hàng -->
+            <!-- Tab 2: Quản lý Tồn kho -->
+            <div id="admin-tab-inventory" class="admin-tab-content">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="font-bold text-gray-800 flex items-center"><i data-lucide="package-minus" class="w-5 h-5 mr-2 text-organic-600"></i> Tình trạng Kho hàng</h3>
+                        <div class="flex space-x-2 text-xs font-bold">
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">Hết hàng (0)</span>
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">Sắp hết (≤ 2)</span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white text-gray-500 text-sm uppercase tracking-wider border-b">
+                                    <th class="p-4 font-bold">Hình ảnh</th>
+                                    <th class="p-4 font-bold">Tên sản phẩm</th>
+                                    <th class="p-4 font-bold text-center">Trạng thái</th>
+                                    <th class="p-4 font-bold text-right">Cập nhật nhanh Tồn kho</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ui-admin-inventory-list" class="divide-y divide-gray-100 text-sm">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Quản lý Đơn hàng -->
             <div id="admin-tab-orders" class="admin-tab-content">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-5 border-b border-gray-100 bg-gray-50/50">
@@ -434,11 +498,16 @@
             <!-- Tab 3: Quản lý Sản phẩm -->
             <div id="admin-tab-products" class="admin-tab-content">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                    <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <h3 class="font-bold text-gray-800">Danh sách Sản phẩm</h3>
-                        <button type="button" onclick="app.openProductModal()" class="bg-organic-600 hover:bg-organic-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center transition">
-                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Thêm sản phẩm
-                        </button>
+                        <div class="flex space-x-3">
+                            <button type="button" onclick="app.openCategoryManager()" class="bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 px-4 py-2 rounded-lg text-sm font-bold flex items-center transition">
+                                <i data-lucide="folder-tree" class="w-4 h-4 mr-1"></i> Quản lý Danh mục
+                            </button>
+                            <button type="button" onclick="app.openProductModal()" class="bg-organic-600 hover:bg-organic-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center transition">
+                                <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Thêm sản phẩm
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -523,14 +592,9 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Danh mục *</label>
-                        <div class="flex gap-2">
-                            <select id="selProdCat" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-organic-500">
-                                <!-- Rendered dynamically -->
-                            </select>
-                            <button type="button" onclick="app.addNewCategory()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 rounded-lg font-bold transition border border-gray-300 flex items-center justify-center" title="Thêm danh mục mới">
-                                <i data-lucide="plus" class="w-5 h-5"></i>
-                            </button>
-                        </div>
+                        <select id="selProdCat" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-organic-500">
+                            <!-- Rendered dynamically -->
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Giá bán (VNĐ) *</label>
@@ -565,12 +629,18 @@
     
     <!-- MODAL: CUSTOMER HISTORY -->
     <div id="modal-customer" class="fixed inset-0 bg-black/60 z-[10000] hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
-            <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-gray-800 flex items-center"><i data-lucide="user" class="w-5 h-5 mr-2 text-blue-600"></i> Lịch sử giao dịch: <span id="modal-cus-name" class="ml-2 text-blue-600"></span></h3>
+        <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center"><i data-lucide="user" class="w-5 h-5 mr-2 text-blue-600"></i> Hồ sơ mua sắm: <span id="modal-cus-name" class="ml-2 text-blue-600"></span></h3>
                 <button type="button" onclick="app.closeCustomerModal()" class="text-gray-400 hover:text-gray-600 transition"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
-            <div class="p-0 overflow-y-auto flex-grow">
+            
+            <!-- Hành vi mua sắm -->
+            <div class="p-5 border-b border-gray-100 bg-blue-50/30 flex flex-col sm:flex-row gap-6" id="ui-modal-cus-behavior">
+                <!-- Rendered by JS -->
+            </div>
+
+            <div class="p-0 overflow-y-auto flex-grow bg-white">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-gray-50 sticky top-0">
                         <tr class="text-gray-500 text-xs uppercase tracking-wider border-b">
@@ -606,20 +676,49 @@
         </div>
     </div>
 
-    <!-- MODAL: THÊM DANH MỤC MỚI -->
-    <div id="modal-category" class="fixed inset-0 bg-black/60 z-[10001] hidden items-center justify-center p-4">
+    <!-- MODAL: QUẢN LÝ DANH MỤC (ADMIN) -->
+    <div id="modal-manage-categories" class="fixed inset-0 bg-black/60 z-[10001] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg flex flex-col shadow-2xl max-h-[80vh]">
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center"><i data-lucide="folder-tree" class="w-5 h-5 mr-2 text-blue-600"></i> Quản lý Danh mục</h3>
+                <button type="button" onclick="app.closeCategoryManager()" class="text-gray-400 hover:text-gray-600 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 border-b border-gray-100 flex gap-2">
+                <input type="text" id="txtManagerNewCategory" onkeydown="if(event.key === 'Enter') app.addCategoryFromManager()" class="flex-grow border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-organic-500 text-sm" placeholder="Tên danh mục mới...">
+                <button type="button" onclick="app.addCategoryFromManager()" class="bg-organic-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-organic-700 transition">Thêm</button>
+            </div>
+            <div class="p-0 overflow-y-auto flex-grow">
+                <ul id="ui-manage-categories-list" class="divide-y divide-gray-100">
+                    <!-- Rendered by JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ĐỔI MẬT KHẨU -->
+    <div id="modal-change-password" class="fixed inset-0 bg-black/60 z-[10001] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm flex flex-col shadow-2xl overflow-hidden">
             <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <h3 class="text-lg font-bold text-gray-800">Thêm Danh mục mới</h3>
-                <button type="button" onclick="app.closeCategoryModal()" class="text-gray-400 hover:text-gray-600 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="text-lg font-bold text-gray-800 flex items-center"><i data-lucide="shield-check" class="w-5 h-5 mr-2 text-blue-600"></i> Đổi mật khẩu</h3>
+                <button type="button" onclick="app.closePasswordModal()" class="text-gray-400 hover:text-gray-600 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-6">
-                <label class="block text-sm font-bold text-gray-700 mb-2">Tên danh mục</label>
-                <input type="text" id="txtNewCategory" onkeydown="if(event.key === 'Enter') app.confirmAddCategory()" class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-organic-500" placeholder="VD: Đồ khô, Gia vị...">
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm">Mật khẩu cũ</label>
+                    <input type="password" id="txtProfileOldPass" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm">Mật khẩu mới</label>
+                    <input type="password" id="txtProfileNewPass" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm">Xác nhận mật khẩu mới</label>
+                    <input type="password" id="txtProfileConfirmPass" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50">
+                </div>
             </div>
             <div class="p-5 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50/50">
-                <button type="button" onclick="app.closeCategoryModal()" class="px-4 py-2 rounded-lg font-bold text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 transition">Hủy</button>
-                <button type="button" onclick="app.confirmAddCategory()" class="px-4 py-2 rounded-lg font-bold text-white bg-organic-600 hover:bg-organic-700 transition shadow-md">Lưu</button>
+                <button type="button" onclick="app.closePasswordModal()" class="px-4 py-2 rounded-lg font-bold text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 transition">Hủy bỏ</button>
+                <button type="button" onclick="app.changePassword()" class="px-4 py-2 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition shadow-md">Lưu mật khẩu</button>
             </div>
         </div>
     </div>
@@ -631,8 +730,8 @@
 
         const DB = {
             users: [
-                { username: 'khachhang', pass: '123', role: 'customer', name: 'Nguyễn Khách' },
-                { username: 'admin', pass: 'admin', role: 'admin', name: 'Quản Trị Viên' }
+                { username: 'khachhang', pass: '123', role: 'customer', name: 'Nguyễn Khách', phone: '0901234567', address: '123 Đường ABC, Quận 1, TP.HCM' },
+                { username: 'admin', pass: 'admin', role: 'admin', name: 'Quản Trị Viên', phone: '', address: '' }
             ],
             categories: ["Rau củ", "Trái cây", "Thịt trứng"], // Thêm mảng danh mục động
             products: [
@@ -760,7 +859,12 @@
                     
                     if (page === 'home') app.renderProducts();
                     if (page === 'cart') app.renderCart();
-                    if (page === 'dashboard-user') app.renderUserDashboard();
+                    if (page === 'dashboard-user') {
+                        app.renderUserDashboard(); // Chỉ render Đơn hàng
+                    }
+                    if (page === 'profile') {
+                        app.loadProfileData(); // Nạp dữ liệu vào trang Thông tin cá nhân
+                    }
                     if (page === 'dashboard-admin') {
                         app.switchAdminTab('overview'); // Mặc định mở tab tổng quan
                     }
@@ -854,22 +958,41 @@
             updateNavUI: () => {
                 const guestUI = document.getElementById('ui-nav-guest');
                 const userUI = document.getElementById('ui-nav-user');
-                const userName = document.getElementById('ui-user-name');
                 const cartBtn = document.getElementById('ui-nav-cart');
-                const dashBtn = document.getElementById('ui-nav-dashboard-btn');
                 
                 if (app.state.user) {
                     guestUI.classList.add('hidden');
                     userUI.classList.remove('hidden');
-                    userName.innerText = `Chào, ${app.state.user.name.split(' ').pop()}`;
+                    
+                    const shortName = app.state.user.name.split(' ').pop(); // Lấy tên cuối
                     
                     if(app.state.user.role === 'admin') {
                         cartBtn.style.display = 'none';
-                        if(dashBtn) dashBtn.innerText = 'Quản lý';
+                        userUI.innerHTML = `
+                            <span class="font-bold text-gray-700 hidden sm:block mr-2">Chào, ${shortName}</span>
+                            <button type="button" onclick="app.navigate('dashboard-admin')" class="text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-bold transition text-sm sm:text-base">
+                                Quản lý
+                            </button>
+                            <button type="button" onclick="app.logout()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Đăng xuất">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                            </button>
+                        `;
                     } else {
                         cartBtn.style.display = 'block';
-                        if(dashBtn) dashBtn.innerText = 'Đơn hàng';
+                        userUI.innerHTML = `
+                            <span class="font-bold text-gray-700 hidden sm:block mr-2">Chào, ${shortName}</span>
+                            <button type="button" onclick="app.navigate('dashboard-user')" class="text-organic-600 bg-organic-50 hover:bg-organic-100 px-3 py-1.5 rounded-lg font-bold transition text-sm sm:text-base border border-organic-100">
+                                Đơn hàng
+                            </button>
+                            <button type="button" onclick="app.navigate('profile')" class="bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 rounded-full transition border border-gray-200" title="Thông tin cá nhân">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </button>
+                            <button type="button" onclick="app.logout()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Đăng xuất">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                            </button>
+                        `;
                     }
+                    lucide.createIcons(); // Gọi lại hàm render icon cho các nút vừa tạo mới
                 } else {
                     guestUI.classList.remove('hidden');
                     userUI.classList.add('hidden');
@@ -1109,6 +1232,14 @@
                 }
             },
 
+            removeFromCart: (id) => {
+                app.state.cart = app.state.cart.filter(x => x.id !== id);
+                app.syncStorage(); // Cập nhật LocalStorage
+                app.updateCartBadge();
+                app.renderCart();
+                app.toast("Đã xóa sản phẩm khỏi giỏ hàng.");
+            },
+
             renderCart: () => {
                 const container = document.getElementById('ui-cart-items');
                 const checkoutForm = document.getElementById('ui-checkout-form');
@@ -1131,8 +1262,12 @@
                 }
 
                 checkoutForm.classList.remove('hidden');
-                if (app.state.user && !document.getElementById('txtCheckoutName').value) {
-                    document.getElementById('txtCheckoutName').value = app.state.user.name;
+                
+                // Tự động điền dữ liệu từ hồ sơ (Nếu ô nhập đang trống)
+                if (app.state.user) {
+                    if (!document.getElementById('txtCheckoutName').value) document.getElementById('txtCheckoutName').value = app.state.user.name || '';
+                    if (!document.getElementById('txtCheckoutPhone').value) document.getElementById('txtCheckoutPhone').value = app.state.user.phone || '';
+                    if (!document.getElementById('txtCheckoutAddress').value) document.getElementById('txtCheckoutAddress').value = app.state.user.address || '';
                 }
 
                 let html = '';
@@ -1151,13 +1286,18 @@
                                     <p class="text-organic-600 font-semibold">${app.formatMoney(item.price)}</p>
                                 </div>
                             </div>
-                            <div class="flex items-center justify-between w-full sm:w-auto gap-8">
+                            <div class="flex items-center justify-between w-full sm:w-auto gap-6 sm:gap-8">
                                 <div class="flex items-center border border-gray-200 rounded-lg bg-white">
                                     <button type="button" class="px-3 py-1.5 hover:bg-gray-100 rounded-l-lg font-bold text-gray-600" onclick="app.updateCartItem(${item.id}, -1)">-</button>
                                     <span class="w-10 text-center font-bold text-sm py-1.5 border-x border-gray-200">${item.qty}</span>
                                     <button type="button" class="px-3 py-1.5 hover:bg-gray-100 rounded-r-lg font-bold text-gray-600" onclick="app.updateCartItem(${item.id}, 1)">+</button>
                                 </div>
-                                <span class="font-extrabold text-gray-800 w-24 text-right">${app.formatMoney(sum)}</span>
+                                <div class="flex items-center gap-4">
+                                    <span class="font-extrabold text-gray-800 w-24 text-right">${app.formatMoney(sum)}</span>
+                                    <button type="button" onclick="app.removeFromCart(${item.id})" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Xóa khỏi giỏ hàng">
+                                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>`;
                 });
@@ -1282,12 +1422,96 @@
                 tbody.innerHTML = html;
             },
 
+            // ================== USER PROFILE LOGIC ==================
+            loadProfileData: () => {
+                if(!app.state.user) return;
+                document.getElementById('txtProfileName').value = app.state.user.name || '';
+                document.getElementById('txtProfilePhone').value = app.state.user.phone || '';
+                document.getElementById('txtProfileAddress').value = app.state.user.address || '';
+                
+                // Clear pass fields just in case
+                document.getElementById('txtProfileOldPass').value = '';
+                document.getElementById('txtProfileNewPass').value = '';
+                document.getElementById('txtProfileConfirmPass').value = '';
+            },
+
+            updateProfile: () => {
+                if(!app.state.user) return;
+                const name = document.getElementById('txtProfileName').value.trim();
+                const phone = document.getElementById('txtProfilePhone').value.trim();
+                const address = document.getElementById('txtProfileAddress').value.trim();
+
+                if(!name) return app.toast("Họ tên không được để trống!", "error");
+
+                // Cập nhật State
+                app.state.user.name = name;
+                app.state.user.phone = phone;
+                app.state.user.address = address;
+
+                // Cập nhật Database giả lập
+                const dbUser = DB.users.find(u => u.username === app.state.user.username);
+                if(dbUser) {
+                    dbUser.name = name;
+                    dbUser.phone = phone;
+                    dbUser.address = address;
+                }
+
+                app.syncStorage();
+                app.updateNavUI(); // Cập nhật tên trên header nếu có thay đổi
+                app.toast("Đã cập nhật thông tin cá nhân!");
+            },
+
+            openPasswordModal: () => {
+                document.getElementById('txtProfileOldPass').value = '';
+                document.getElementById('txtProfileNewPass').value = '';
+                document.getElementById('txtProfileConfirmPass').value = '';
+                
+                const modal = document.getElementById('modal-change-password');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            },
+
+            closePasswordModal: () => {
+                const modal = document.getElementById('modal-change-password');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            },
+
+            changePassword: () => {
+                if(!app.state.user) return;
+                const oldPass = document.getElementById('txtProfileOldPass').value;
+                const newPass = document.getElementById('txtProfileNewPass').value;
+                const confirmPass = document.getElementById('txtProfileConfirmPass').value;
+
+                if(!oldPass || !newPass || !confirmPass) {
+                    return app.toast("Vui lòng điền đầy đủ các trường mật khẩu!", "error");
+                }
+                if(oldPass !== app.state.user.pass) {
+                    return app.toast("Mật khẩu cũ không chính xác!", "error");
+                }
+                if(newPass !== confirmPass) {
+                    return app.toast("Mật khẩu xác nhận không khớp!", "error");
+                }
+
+                // Cập nhật State
+                app.state.user.pass = newPass;
+
+                // Cập nhật Database giả lập
+                const dbUser = DB.users.find(u => u.username === app.state.user.username);
+                if(dbUser) dbUser.pass = newPass;
+
+                app.syncStorage();
+                app.closePasswordModal();
+                app.toast("Đổi mật khẩu thành công!");
+            },
+
             // ================== ADMIN TABS LOGIC ==================
             switchAdminTab: (tabId) => {
                 // Đổi nút
-                const btns = ['overview', 'orders', 'products', 'customers'];
+                const btns = ['overview', 'inventory', 'orders', 'products', 'customers'];
                 btns.forEach(b => {
                     const btnEl = document.getElementById('btn-admin-' + b);
+                    if(!btnEl) return;
                     if(b === tabId) {
                         btnEl.className = "px-5 py-3 font-bold border-b-2 border-organic-600 text-organic-600 transition whitespace-nowrap";
                     } else {
@@ -1297,10 +1521,12 @@
 
                 // Đổi nội dung
                 document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
-                document.getElementById('admin-tab-' + tabId).classList.add('active');
+                const targetTab = document.getElementById('admin-tab-' + tabId);
+                if(targetTab) targetTab.classList.add('active');
 
                 // Render dữ liệu
                 if(tabId === 'overview') app.renderAdminReports();
+                if(tabId === 'inventory') app.renderAdminInventory();
                 if(tabId === 'orders') app.renderAdminOrders();
                 if(tabId === 'products') app.renderAdminProducts();
                 if(tabId === 'customers') app.renderAdminCustomers();
@@ -1381,6 +1607,65 @@
                     });
                 }
                 document.getElementById('ui-report-trending').innerHTML = trendingHtml;
+            },
+
+            // --- ADMIN: QUẢN LÝ TỒN KHO ---
+            renderAdminInventory: () => {
+                const tbody = document.getElementById('ui-admin-inventory-list');
+                let html = '';
+                
+                // Sắp xếp ưu tiên: Hết hàng -> Sắp hết -> Còn hàng
+                const sortedInventory = [...DB.products].sort((a, b) => a.stock - b.stock);
+                
+                sortedInventory.forEach(p => {
+                    let statusHtml = '';
+                    let rowClass = 'hover:bg-gray-50 border-b border-gray-50 transition';
+                    const fallbackCode = `this.onerror=null; this.src='${getFallback(p.name)}';`;
+                    
+                    if (p.stock === 0) {
+                        statusHtml = '<span class="bg-red-100 text-red-700 px-3 py-1 rounded font-bold text-xs border border-red-200"><i data-lucide="alert-triangle" class="w-3 h-3 inline mr-1"></i>Hết hàng</span>';
+                        rowClass = 'bg-red-50/30 hover:bg-red-50 border-b border-red-100 transition';
+                    } else if (p.stock <= 2) {
+                        statusHtml = '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded font-bold text-xs border border-yellow-200"><i data-lucide="alert-circle" class="w-3 h-3 inline mr-1"></i>Sắp hết</span>';
+                        rowClass = 'bg-yellow-50/30 hover:bg-yellow-50 border-b border-yellow-100 transition';
+                    } else {
+                        statusHtml = '<span class="bg-green-100 text-green-700 px-3 py-1 rounded font-bold text-xs border border-green-200">Còn hàng</span>';
+                    }
+
+                    html += `
+                    <tr class="${rowClass}">
+                        <td class="p-4 w-16"><img src="${p.img}" onerror="${fallbackCode}" class="w-12 h-12 object-cover rounded-lg border border-gray-200 bg-white"></td>
+                        <td class="p-4">
+                            <div class="font-bold text-gray-800">${p.name}</div>
+                            <div class="text-xs text-gray-500 font-medium">${p.category}</div>
+                        </td>
+                        <td class="p-4 text-center">${statusHtml}</td>
+                        <td class="p-4">
+                            <div class="flex items-center justify-end space-x-2">
+                                <input type="number" id="quick-stock-${p.id}" value="${p.stock}" min="0" class="w-20 text-center font-bold border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-organic-500 bg-white">
+                                <button onclick="app.quickUpdateStock(${p.id})" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg font-bold transition shadow-sm text-sm">Lưu</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+                lucide.createIcons();
+            },
+
+            quickUpdateStock: (id) => {
+                const p = DB.products.find(x => x.id === id);
+                const inputEl = document.getElementById(`quick-stock-${id}`);
+                const newStock = parseInt(inputEl.value);
+
+                if (!isNaN(newStock) && newStock >= 0) {
+                    p.stock = newStock;
+                    app.syncStorage();
+                    app.toast(`Đã cập nhật tồn kho: ${p.name} (${newStock})`);
+                    app.renderAdminInventory(); // Re-render để đổi màu nếu hết/còn hàng
+                } else {
+                    app.toast("Số lượng tồn kho không hợp lệ!", "error");
+                    inputEl.value = p.stock; // Khôi phục giá trị cũ
+                }
             },
 
             // --- ADMIN: QUẢN LÝ ĐƠN HÀNG ---
@@ -1525,39 +1810,113 @@
                 sel.innerHTML = DB.categories.map(c => `<option value="${c}">${c}</option>`).join('');
             },
 
-            addNewCategory: () => {
-                document.getElementById('txtNewCategory').value = '';
-                const modal = document.getElementById('modal-category');
+            // --- ADMIN: QUẢN LÝ DANH MỤC (NÂNG CAO) ---
+            openCategoryManager: () => {
+                const modal = document.getElementById('modal-manage-categories');
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
-                setTimeout(() => document.getElementById('txtNewCategory').focus(), 100);
+                document.getElementById('txtManagerNewCategory').value = '';
+                app.renderManageCategoriesList();
             },
 
-            closeCategoryModal: () => {
-                const modal = document.getElementById('modal-category');
+            closeCategoryManager: () => {
+                const modal = document.getElementById('modal-manage-categories');
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             },
 
-            confirmAddCategory: () => {
-                const newCat = document.getElementById('txtNewCategory').value;
-                if (newCat && newCat.trim() !== '') {
-                    const catName = newCat.trim();
-                    if (DB.categories.includes(catName)) {
-                        app.toast("Danh mục này đã tồn tại!", "error");
-                    } else {
-                        DB.categories.push(catName);
-                        app.syncStorage(); // Lưu vào bộ nhớ máy tính
-                        app.renderCategoryFilters(); // Cập nhật nút bấm ngoài trang chủ
-                        app.renderCategoryDropdown(); // Cập nhật menu xổ xuống
-                        
-                        document.getElementById('selProdCat').value = catName; // Tự động chọn danh mục vừa tạo
-                        app.toast(`Đã thêm danh mục mới: ${catName}`);
-                        lucide.createIcons();
-                        app.closeCategoryModal();
+            renderManageCategoriesList: () => {
+                const list = document.getElementById('ui-manage-categories-list');
+                let html = '';
+                DB.categories.forEach((cat, index) => {
+                    html += `
+                        <li class="p-4 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-gray-700">${cat}</span>
+                            <div class="space-x-2">
+                                <button onclick="app.editCategory(${index})" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded transition" title="Sửa tên danh mục"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                                <button onclick="app.deleteCategory(${index})" class="p-1.5 bg-red-50 text-red-500 hover:bg-red-600 hover:text-white rounded transition" title="Xóa danh mục"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </li>
+                    `;
+                });
+                list.innerHTML = html;
+                lucide.createIcons();
+            },
+
+            addCategoryFromManager: () => {
+                const inputEl = document.getElementById('txtManagerNewCategory');
+                const newCat = inputEl.value.trim();
+                
+                if (newCat === '') return app.toast("Vui lòng nhập tên danh mục!", "error");
+                if (DB.categories.includes(newCat)) return app.toast("Danh mục này đã tồn tại!", "error");
+
+                DB.categories.push(newCat);
+                app.syncStorage();
+                app.renderCategoryFilters();
+                app.renderCategoryDropdown();
+                app.renderManageCategoriesList();
+                
+                inputEl.value = '';
+                app.toast(`Đã thêm danh mục: ${newCat}`);
+            },
+
+            editCategory: (index) => {
+                const oldName = DB.categories[index];
+                const newName = prompt(`Nhập tên mới cho danh mục "${oldName}":`, oldName);
+                
+                if (newName !== null && newName.trim() !== '' && newName.trim() !== oldName) {
+                    const finalName = newName.trim();
+                    if (DB.categories.includes(finalName)) {
+                        return app.toast("Tên danh mục này đã bị trùng!", "error");
                     }
-                } else {
-                    app.toast("Vui lòng nhập tên danh mục!", "error");
+                    
+                    // 1. Đổi tên trong mảng danh mục
+                    DB.categories[index] = finalName;
+                    
+                    // 2. Tự động cập nhật tên danh mục mới cho TẤT CẢ sản phẩm đang thuộc danh mục cũ
+                    let updatedCount = 0;
+                    DB.products.forEach(p => {
+                        if(p.category === oldName) {
+                            p.category = finalName;
+                            updatedCount++;
+                        }
+                    });
+
+                    app.syncStorage();
+                    app.renderCategoryFilters();
+                    app.renderCategoryDropdown();
+                    app.renderManageCategoriesList();
+                    app.renderAdminProducts(); // Cập nhật lại bảng sản phẩm
+                    
+                    app.toast(`Đã sửa thành: ${finalName}. Đã tự động cập nhật ${updatedCount} sản phẩm.`);
+                }
+            },
+
+            deleteCategory: (index) => {
+                const catName = DB.categories[index];
+                
+                // Kiểm tra xem có sản phẩm nào đang dùng danh mục này không
+                const hasProducts = DB.products.some(p => p.category === catName);
+                if (hasProducts) {
+                    alert(`KHÔNG THỂ XÓA!\nDanh mục "${catName}" đang chứa sản phẩm.\nVui lòng xóa sản phẩm hoặc chuyển sản phẩm sang danh mục khác trước.`);
+                    return;
+                }
+
+                if (confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn danh mục "${catName}" không?`)) {
+                    DB.categories.splice(index, 1);
+                    
+                    // Nếu danh mục đang được chọn lọc ngoài trang chủ bị xóa, chuyển về "Tất cả"
+                    if(app.state.category === catName) {
+                        app.state.category = 'Tất cả';
+                    }
+
+                    app.syncStorage();
+                    app.renderCategoryFilters();
+                    app.renderCategoryDropdown();
+                    app.renderManageCategoriesList();
+                    app.renderProducts();
+                    
+                    app.toast(`Đã xóa danh mục: ${catName}`);
                 }
             },
 
@@ -1654,14 +2013,60 @@
                 
                 document.getElementById('modal-cus-name').innerText = cus ? cus.name : username;
                 const tbody = document.getElementById('ui-modal-cus-orders');
+                const behaviorDiv = document.getElementById('ui-modal-cus-behavior');
 
                 if(cusOrders.length === 0) {
+                    behaviorDiv.innerHTML = '<p class="text-gray-500 text-sm">Chưa có dữ liệu phân tích hành vi.</p>';
                     tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Khách hàng chưa có giao dịch nào.</td></tr>`;
                 } else {
+                    // --- 1. Phân tích hành vi mua sắm ---
+                    let boughtProducts = {};
+                    let boughtCategories = {};
+                    
+                    cusOrders.forEach(o => {
+                        if(o.status === 'Đã hủy') return; // Bỏ qua đơn đã hủy
+                        const itemsArr = o.items.split(', ');
+                        itemsArr.forEach(str => {
+                            const match = str.match(/(.+?)\s*\(x(\d+)\)/);
+                            if(match) {
+                                const pName = match[1];
+                                const qty = parseInt(match[2]);
+                                
+                                boughtProducts[pName] = (boughtProducts[pName] || 0) + qty;
+                                
+                                // Tìm danh mục của sản phẩm
+                                const prodObj = DB.products.find(p => p.name === pName);
+                                if (prodObj) {
+                                    boughtCategories[prodObj.category] = (boughtCategories[prodObj.category] || 0) + qty;
+                                }
+                            }
+                        });
+                    });
+
+                    // Tìm Món mua nhiều nhất
+                    const topProducts = Object.entries(boughtProducts).sort((a, b) => b[1] - a[1]);
+                    const favProductStr = topProducts.length > 0 ? `${topProducts[0][0]} <span class="text-xs text-gray-500 font-normal">(mua ${topProducts[0][1]} lần)</span>` : "Chưa rõ";
+                    
+                    // Tìm Danh mục yêu thích nhất
+                    const topCategories = Object.entries(boughtCategories).sort((a, b) => b[1] - a[1]);
+                    const favCatStr = topCategories.length > 0 ? `${topCategories[0][0]}` : "Chưa rõ";
+
+                    behaviorDiv.innerHTML = `
+                        <div class="flex-1 bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                            <p class="text-xs text-gray-500 font-bold uppercase mb-1 flex items-center"><i data-lucide="star" class="w-3 h-3 mr-1 text-yellow-500"></i> Sản phẩm mua nhiều nhất</p>
+                            <p class="text-blue-700 font-bold">${favProductStr}</p>
+                        </div>
+                        <div class="flex-1 bg-white p-4 rounded-xl shadow-sm border border-organic-100">
+                            <p class="text-xs text-gray-500 font-bold uppercase mb-1 flex items-center"><i data-lucide="layout-list" class="w-3 h-3 mr-1 text-organic-500"></i> Danh mục yêu thích</p>
+                            <p class="text-organic-700 font-bold">${favCatStr}</p>
+                        </div>
+                    `;
+
+                    // --- 2. Render bảng đơn hàng ---
                     let html = '';
                     cusOrders.forEach(o => {
                         html += `
-                            <tr class="hover:bg-gray-50 border-b border-gray-50">
+                            <tr class="hover:bg-gray-50 border-b border-gray-50 transition">
                                 <td class="p-4 font-bold text-gray-800">${o.id}</td>
                                 <td class="p-4 text-gray-500">${o.date}</td>
                                 <td class="p-4 text-gray-700 text-xs">${o.items}</td>
@@ -1675,6 +2080,7 @@
                     tbody.innerHTML = html;
                 }
 
+                lucide.createIcons();
                 const modal = document.getElementById('modal-customer');
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
