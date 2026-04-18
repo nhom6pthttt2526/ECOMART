@@ -361,7 +361,7 @@
             <!-- Admin Navigation Tabs -->
             <div class="flex space-x-2 overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide">
                 <button type="button" onclick="app.switchAdminTab('overview')" id="btn-admin-overview" class="px-5 py-3 font-bold border-b-2 border-organic-600 text-organic-600 transition whitespace-nowrap">Tổng quan & Báo cáo</button>
-                <button type="button" onclick="app.switchAdminTab('inventory')" id="btn-admin-inventory" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Tồn kho</button>
+                <button type="button" onclick="app.switchAdminTab('inventory')" id="btn-admin-inventory" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Báo cáo Tồn kho</button>
                 <button type="button" onclick="app.switchAdminTab('orders')" id="btn-admin-orders" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Đơn hàng</button>
                 <button type="button" onclick="app.switchAdminTab('products')" id="btn-admin-products" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Sản phẩm</button>
                 <button type="button" onclick="app.switchAdminTab('customers')" id="btn-admin-customers" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Khách hàng</button>
@@ -459,8 +459,8 @@
                                 <tr class="bg-white text-gray-500 text-sm uppercase tracking-wider border-b">
                                     <th class="p-4 font-bold">Hình ảnh</th>
                                     <th class="p-4 font-bold">Tên sản phẩm</th>
-                                    <th class="p-4 font-bold text-center">Trạng thái</th>
-                                    <th class="p-4 font-bold text-right">Cập nhật nhanh Tồn kho</th>
+                                    <th class="p-4 font-bold text-center">Tồn kho hiện tại</th>
+                                    <th class="p-4 font-bold text-right">Trạng thái</th>
                                 </tr>
                             </thead>
                             <tbody id="ui-admin-inventory-list" class="divide-y divide-gray-100 text-sm">
@@ -1639,33 +1639,12 @@
                             <div class="font-bold text-gray-800">${p.name}</div>
                             <div class="text-xs text-gray-500 font-medium">${p.category}</div>
                         </td>
-                        <td class="p-4 text-center">${statusHtml}</td>
-                        <td class="p-4">
-                            <div class="flex items-center justify-end space-x-2">
-                                <input type="number" id="quick-stock-${p.id}" value="${p.stock}" min="0" class="w-20 text-center font-bold border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-organic-500 bg-white">
-                                <button onclick="app.quickUpdateStock(${p.id})" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg font-bold transition shadow-sm text-sm">Lưu</button>
-                            </div>
-                        </td>
+                        <td class="p-4 text-center font-extrabold ${p.stock <= 2 ? 'text-red-600' : 'text-gray-700'} text-lg">${p.stock}</td>
+                        <td class="p-4 text-right">${statusHtml}</td>
                     </tr>`;
                 });
                 tbody.innerHTML = html;
                 lucide.createIcons();
-            },
-
-            quickUpdateStock: (id) => {
-                const p = DB.products.find(x => x.id === id);
-                const inputEl = document.getElementById(`quick-stock-${id}`);
-                const newStock = parseInt(inputEl.value);
-
-                if (!isNaN(newStock) && newStock >= 0) {
-                    p.stock = newStock;
-                    app.syncStorage();
-                    app.toast(`Đã cập nhật tồn kho: ${p.name} (${newStock})`);
-                    app.renderAdminInventory(); // Re-render để đổi màu nếu hết/còn hàng
-                } else {
-                    app.toast("Số lượng tồn kho không hợp lệ!", "error");
-                    inputEl.value = p.stock; // Khôi phục giá trị cũ
-                }
             },
 
             // --- ADMIN: QUẢN LÝ ĐƠN HÀNG ---
