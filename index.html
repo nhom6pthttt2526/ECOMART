@@ -361,7 +361,6 @@
             <!-- Admin Navigation Tabs -->
             <div class="flex space-x-2 overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide">
                 <button type="button" onclick="app.switchAdminTab('overview')" id="btn-admin-overview" class="px-5 py-3 font-bold border-b-2 border-organic-600 text-organic-600 transition whitespace-nowrap">Tổng quan & Báo cáo</button>
-                <button type="button" onclick="app.switchAdminTab('inventory')" id="btn-admin-inventory" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Báo cáo Tồn kho</button>
                 <button type="button" onclick="app.switchAdminTab('orders')" id="btn-admin-orders" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Đơn hàng</button>
                 <button type="button" onclick="app.switchAdminTab('products')" id="btn-admin-products" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Sản phẩm</button>
                 <button type="button" onclick="app.switchAdminTab('customers')" id="btn-admin-customers" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Quản lý Khách hàng</button>
@@ -394,79 +393,97 @@
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Khu vực Report Tabs -->
+                <div class="flex space-x-2 overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide">
+                    <button type="button" onclick="app.switchReportTab('revenue')" id="btn-report-revenue" class="px-5 py-3 font-bold border-b-2 border-blue-600 text-blue-600 transition whitespace-nowrap">Báo cáo Doanh thu</button>
+                    <button type="button" onclick="app.switchReportTab('trending')" id="btn-report-trending" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Sản phẩm Bán chạy</button>
+                    <button type="button" onclick="app.switchReportTab('inventory')" id="btn-report-inventory" class="px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap">Tình trạng Kho hàng</button>
+                </div>
+
+                <div class="mb-8">
                     <!-- Báo cáo Doanh thu -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                            <h3 class="font-bold text-gray-800 flex items-center"><i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 text-blue-600"></i> Báo cáo Doanh thu</h3>
-                            <select id="sel-report-time" onchange="app.renderAdminReports()" class="text-sm border border-gray-300 rounded-lg p-1.5 outline-none font-medium text-gray-700 focus:ring-2 focus:ring-blue-500">
-                                <option value="day">Theo Ngày</option>
-                                <option value="month">Theo Tháng</option>
-                                <option value="year">Theo Năm</option>
-                            </select>
-                        </div>
-                        <div class="p-0 overflow-x-auto max-h-80 overflow-y-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-white text-gray-500 text-xs uppercase tracking-wider border-b">
-                                        <th class="p-4 font-bold">Thời gian</th>
-                                        <th class="p-4 font-bold text-right">Số đơn</th>
-                                        <th class="p-4 font-bold text-right">Doanh thu</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ui-report-revenue" class="divide-y divide-gray-100 text-sm">
-                                    <!-- Rendered by JS -->
-                                </tbody>
-                            </table>
+                    <div id="report-tab-revenue" class="report-tab-content block">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                            <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                <div class="flex items-center space-x-4 w-full sm:w-auto">
+                                    <h3 class="font-bold text-gray-800 flex items-center whitespace-nowrap"><i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 text-blue-600"></i> Báo cáo Doanh thu</h3>
+                                    <select id="sel-report-time" onchange="app.renderAdminReports()" class="text-sm border border-gray-300 rounded-lg p-1.5 outline-none font-medium text-gray-700 focus:ring-2 focus:ring-blue-500">
+                                        <option value="day">Theo Ngày</option>
+                                        <option value="month">Theo Tháng</option>
+                                        <option value="year">Theo Năm</option>
+                                    </select>
+                                </div>
+                                <!-- Thanh tìm kiếm doanh thu -->
+                                <div class="relative w-full sm:w-64">
+                                    <input type="text" id="ui-search-revenue" onkeyup="app.renderAdminReports()" placeholder="Tìm kiếm theo thời gian..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition bg-white text-sm">
+                                    <i data-lucide="search" class="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="p-0 overflow-x-auto h-96 overflow-y-auto flex-grow relative">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="sticky top-0 bg-white shadow-sm border-b border-gray-200 z-10">
+                                        <tr class="text-gray-500 text-xs uppercase tracking-wider">
+                                            <th class="p-4 font-bold bg-white">Thời gian</th>
+                                            <th class="p-4 font-bold text-right bg-white">Số đơn</th>
+                                            <th class="p-4 font-bold text-right bg-white">Doanh thu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ui-report-revenue" class="divide-y divide-gray-100 text-sm">
+                                        <!-- Rendered by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Báo cáo Sản phẩm bán chạy -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="p-5 border-b border-gray-100 bg-gray-50/50">
-                            <h3 class="font-bold text-gray-800 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 mr-2 text-organic-600"></i> Top Sản phẩm Bán chạy</h3>
-                        </div>
-                        <div class="p-0 overflow-x-auto max-h-80 overflow-y-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-white text-gray-500 text-xs uppercase tracking-wider border-b">
-                                        <th class="p-4 font-bold">Tên sản phẩm</th>
-                                        <th class="p-4 font-bold text-right">Đã bán (Số lượng)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ui-report-trending" class="divide-y divide-gray-100 text-sm">
-                                    <!-- Rendered by JS -->
-                                </tbody>
-                            </table>
+                    <div id="report-tab-trending" class="report-tab-content hidden">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                            <div class="p-5 border-b border-gray-100 bg-gray-50/50">
+                                <h3 class="font-bold text-gray-800 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 mr-2 text-organic-600"></i> Top Sản phẩm Bán chạy</h3>
+                            </div>
+                            <div class="p-0 overflow-x-auto h-96 overflow-y-auto flex-grow relative">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="sticky top-0 bg-white shadow-sm border-b border-gray-200 z-10">
+                                        <tr class="text-gray-500 text-xs uppercase tracking-wider">
+                                            <th class="p-4 font-bold bg-white">Tên sản phẩm</th>
+                                            <th class="p-4 font-bold text-right bg-white">Đã bán (Số lượng)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ui-report-trending" class="divide-y divide-gray-100 text-sm">
+                                        <!-- Rendered by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Tab 2: Quản lý Tồn kho -->
-            <div id="admin-tab-inventory" class="admin-tab-content">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <h3 class="font-bold text-gray-800 flex items-center"><i data-lucide="package-minus" class="w-5 h-5 mr-2 text-organic-600"></i> Tình trạng Kho hàng</h3>
-                        <div class="flex space-x-2 text-xs font-bold">
-                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">Hết hàng (0)</span>
-                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">Sắp hết (≤ 2)</span>
+                    <!-- Báo cáo Tồn kho (Cảnh báo) -->
+                    <div id="report-tab-inventory" class="report-tab-content hidden">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                            <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                <h3 class="font-bold text-gray-800 flex items-center"><i data-lucide="package-minus" class="w-5 h-5 mr-2 text-organic-600"></i> Tình trạng Kho hàng</h3>
+                                <div class="flex space-x-2 text-[10px] font-bold">
+                                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">Hết hàng (0)</span>
+                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">Sắp hết (≤ 2)</span>
+                                </div>
+                            </div>
+                            <div class="p-0 overflow-x-auto h-96 overflow-y-auto flex-grow relative">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="sticky top-0 bg-white shadow-sm border-b border-gray-200 z-10">
+                                        <tr class="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">
+                                            <th class="p-4 font-bold bg-white">Hình ảnh</th>
+                                            <th class="p-4 font-bold bg-white">Tên sản phẩm</th>
+                                            <th class="p-4 font-bold text-center bg-white whitespace-nowrap">Tồn kho hiện tại</th>
+                                            <th class="p-4 font-bold text-right bg-white">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ui-admin-inventory-list" class="divide-y divide-gray-100 text-sm">
+                                        <!-- Rendered by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-white text-gray-500 text-sm uppercase tracking-wider border-b">
-                                    <th class="p-4 font-bold">Hình ảnh</th>
-                                    <th class="p-4 font-bold">Tên sản phẩm</th>
-                                    <th class="p-4 font-bold text-center">Tồn kho hiện tại</th>
-                                    <th class="p-4 font-bold text-right">Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ui-admin-inventory-list" class="divide-y divide-gray-100 text-sm">
-                                <!-- Rendered by JS -->
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -1508,7 +1525,7 @@
             // ================== ADMIN TABS LOGIC ==================
             switchAdminTab: (tabId) => {
                 // Đổi nút
-                const btns = ['overview', 'inventory', 'orders', 'products', 'customers'];
+                const btns = ['overview', 'orders', 'products', 'customers'];
                 btns.forEach(b => {
                     const btnEl = document.getElementById('btn-admin-' + b);
                     if(!btnEl) return;
@@ -1525,11 +1542,40 @@
                 if(targetTab) targetTab.classList.add('active');
 
                 // Render dữ liệu
-                if(tabId === 'overview') app.renderAdminReports();
-                if(tabId === 'inventory') app.renderAdminInventory();
+                if(tabId === 'overview') {
+                    app.renderAdminReports();
+                    app.renderAdminInventory(); 
+                    app.switchReportTab('revenue'); // Mặc định hiển thị tab Báo cáo Doanh thu đầu tiên
+                }
                 if(tabId === 'orders') app.renderAdminOrders();
                 if(tabId === 'products') app.renderAdminProducts();
                 if(tabId === 'customers') app.renderAdminCustomers();
+            },
+
+            // Chuyển đổi giữa 3 Tab Báo cáo con (Sub-tabs)
+            switchReportTab: (tabId) => {
+                // Đổi kiểu nút
+                const btns = ['revenue', 'trending', 'inventory'];
+                btns.forEach(b => {
+                    const btnEl = document.getElementById('btn-report-' + b);
+                    if(!btnEl) return;
+                    if(b === tabId) {
+                        btnEl.className = "px-5 py-3 font-bold border-b-2 border-blue-600 text-blue-600 transition whitespace-nowrap";
+                    } else {
+                        btnEl.className = "px-5 py-3 font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition whitespace-nowrap";
+                    }
+                });
+
+                // Ẩn/Hiện nội dung bảng
+                document.querySelectorAll('.report-tab-content').forEach(el => {
+                    el.classList.remove('block');
+                    el.classList.add('hidden');
+                });
+                const targetTab = document.getElementById('report-tab-' + tabId);
+                if(targetTab) {
+                    targetTab.classList.remove('hidden');
+                    targetTab.classList.add('block');
+                }
             },
 
             // --- ADMIN: BÁO CÁO & TỔNG QUAN ---
@@ -1543,8 +1589,10 @@
                 document.getElementById('ui-stat-revenue').innerText = app.formatMoney(revenue);
                 document.getElementById('ui-stat-pending').innerText = pending;
 
-                // Xử lý Báo cáo Doanh thu theo Ngày/Tháng/Năm
+                // Xử lý Báo cáo Doanh thu theo Ngày/Tháng/Năm & Tìm kiếm
                 const timeType = document.getElementById('sel-report-time').value; // day, month, year
+                const searchEl = document.getElementById('ui-search-revenue');
+                const searchKeyword = searchEl ? searchEl.value.toLowerCase().trim() : '';
                 const revenueMap = {};
 
                 app.state.orders.forEach(o => {
@@ -1560,11 +1608,17 @@
                     revenueMap[key].total += o.total;
                 });
 
+                // Lọc theo thanh tìm kiếm
+                let filteredRevenue = Object.entries(revenueMap);
+                if (searchKeyword) {
+                    filteredRevenue = filteredRevenue.filter(([key, _]) => key.toLowerCase().includes(searchKeyword));
+                }
+
                 let revenueHtml = '';
-                if(Object.keys(revenueMap).length === 0) {
-                    revenueHtml = `<tr><td colspan="3" class="p-4 text-center text-gray-500">Chưa có dữ liệu doanh thu</td></tr>`;
+                if(filteredRevenue.length === 0) {
+                    revenueHtml = `<tr><td colspan="3" class="p-4 text-center text-gray-500">Không tìm thấy dữ liệu doanh thu</td></tr>`;
                 } else {
-                    for (const [key, data] of Object.entries(revenueMap)) {
+                    for (const [key, data] of filteredRevenue) {
                         revenueHtml += `
                         <tr class="hover:bg-gray-50 border-b border-gray-50">
                             <td class="p-4 font-bold text-gray-800">${key}</td>
