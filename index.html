@@ -189,7 +189,7 @@
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2 text-sm">Số điện thoại</label>
-                                <input type="tel" id="txtCheckoutPhone" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-organic-500 focus:border-organic-500 outline-none transition bg-gray-50" placeholder="Nhập số điện thoại">
+                                <input type="tel" id="txtCheckoutPhone" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-organic-500 focus:border-organic-500 outline-none transition bg-gray-50" placeholder="Nhập số điện thoại">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-gray-700 font-bold mb-2 text-sm">Địa chỉ nhận hàng</label>
@@ -351,7 +351,7 @@
                         </div>
                         <div>
                             <label class="block text-gray-700 font-bold mb-2 text-sm">Số điện thoại</label>
-                            <input type="tel" id="txtProfilePhone" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-organic-500 outline-none transition">
+                            <input type="tel" id="txtProfilePhone" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-organic-500 outline-none transition">
                         </div>
                         <div>
                             <label class="block text-gray-700 font-bold mb-2 text-sm">Địa chỉ giao hàng mặc định</label>
@@ -1308,6 +1308,10 @@
                     if (!document.getElementById('txtCheckoutAddress').value) document.getElementById('txtCheckoutAddress').value = app.state.user.address || '';
                 }
 
+                // Luôn thiết lập mặc định Phương thức thanh toán là COD
+                const codRadio = document.querySelector('input[name="paymentMethod"][value="Thanh toán khi nhận hàng (COD)"]');
+                if (codRadio) codRadio.checked = true;
+
                 let html = '';
                 let total = 0;
                 app.state.cart.forEach(item => {
@@ -1411,6 +1415,10 @@
                 
                 document.getElementById('txtCheckoutPhone').value = '';
                 document.getElementById('txtCheckoutAddress').value = '';
+                
+                // Reset phương thức thanh toán về mặc định
+                const codRadio = document.querySelector('input[name="paymentMethod"][value="Thanh toán khi nhận hàng (COD)"]');
+                if (codRadio) codRadio.checked = true;
 
                 app.toast("Đặt hàng thành công! Đơn hàng đang được chờ duyệt.");
                 app.navigate('dashboard-user');
