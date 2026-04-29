@@ -761,6 +761,53 @@
         </div>
     </div>
 
+    <!-- MODAL: CHI TIẾT ĐƠN HÀNG (KHÁCH HÀNG) -->
+    <div id="modal-order-details" class="fixed inset-0 bg-black/60 z-[10002] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center"><i data-lucide="receipt" class="w-5 h-5 mr-2 text-organic-600"></i> Chi tiết Đơn hàng <span id="mod-ord-id" class="ml-2 text-blue-600"></span></h3>
+                <button type="button" onclick="app.closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow space-y-6">
+                <!-- Status & Date -->
+                <div class="flex justify-between items-center border-b border-gray-100 pb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Ngày đặt hàng</p>
+                        <p id="mod-ord-date" class="font-bold text-gray-800"></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 mb-1">Trạng thái</p>
+                        <span id="mod-ord-status" class="px-3 py-1 rounded-lg text-xs font-bold border"></span>
+                    </div>
+                </div>
+                <!-- Shipping & Payment -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div>
+                        <h4 class="font-bold text-gray-700 text-sm mb-2 flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-1 text-gray-500"></i> Giao hàng đến</h4>
+                        <p id="mod-ord-name" class="font-bold text-gray-800 text-sm"></p>
+                        <p id="mod-ord-phone" class="text-sm text-gray-600 mt-1"></p>
+                        <p id="mod-ord-address" class="text-sm text-gray-600 mt-1 line-clamp-2"></p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-700 text-sm mb-2 flex items-center"><i data-lucide="credit-card" class="w-4 h-4 mr-1 text-gray-500"></i> Thanh toán</h4>
+                        <p id="mod-ord-payment" class="text-sm text-gray-800 font-medium"></p>
+                    </div>
+                </div>
+                <!-- Items -->
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2">Sản phẩm đã mua</h4>
+                    <div id="mod-ord-items" class="space-y-3">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                <span class="font-bold text-gray-600">Tổng cộng:</span>
+                <span id="mod-ord-total" class="text-2xl font-extrabold text-organic-600"></span>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT APP LOGIC -->
     <script>
         // --- 1. DỮ LIỆU GIẢ LẬP ---
@@ -1469,10 +1516,10 @@
                 myOrders.forEach(o => {
                     const paymentText = o.payment || 'Thanh toán khi nhận hàng (COD)';
                     html += `
-                        <tr class="hover:bg-gray-50 transition border-b border-gray-50">
+                        <tr onclick="app.viewOrderDetails('${o.id}')" class="hover:bg-gray-100 transition border-b border-gray-50 cursor-pointer" title="Nhấn để xem chi tiết">
                             <td class="p-4 font-bold text-gray-800">${o.id}</td>
                             <td class="p-4 text-gray-500 font-medium">${o.date}</td>
-                            <td class="p-4 text-gray-700 max-w-xs truncate" title="${o.items}">${o.items}</td>
+                            <td class="p-4 text-gray-700 max-w-xs truncate">${o.items}</td>
                             <td class="p-4">
                                 <div class="font-extrabold text-organic-600">${app.formatMoney(o.total)}</div>
                                 <div class="text-xs text-gray-500 mt-1 flex items-center" title="${paymentText}">
@@ -1486,6 +1533,75 @@
                         </tr>`;
                 });
                 tbody.innerHTML = html;
+                lucide.createIcons();
+            },
+
+            // --- XEM CHI TIẾT ĐƠN HÀNG (KHÁCH HÀNG) ---
+            viewOrderDetails: (id) => {
+                const order = app.state.orders.find(o => o.id === id);
+                if(!order) return;
+
+                document.getElementById('mod-ord-id').innerText = order.id;
+                document.getElementById('mod-ord-date').innerText = order.date;
+                
+                const statusEl = document.getElementById('mod-ord-status');
+                statusEl.innerText = order.status;
+                statusEl.className = `px-3 py-1 rounded-lg text-xs font-bold border ${app.getStatusClass(order.status)}`;
+
+                document.getElementById('mod-ord-name').innerText = order.name || order.user;
+                document.getElementById('mod-ord-phone').innerText = order.phone || 'Chưa cập nhật';
+                document.getElementById('mod-ord-address').innerText = order.address || 'Chưa cập nhật';
+                document.getElementById('mod-ord-payment').innerText = order.payment || 'Thanh toán khi nhận hàng (COD)';
+                document.getElementById('mod-ord-total').innerText = app.formatMoney(order.total);
+
+                // Parse items để hiển thị kèm hình ảnh
+                const itemsContainer = document.getElementById('mod-ord-items');
+                let itemsHtml = '';
+                const itemsArr = order.items.split(', ');
+                
+                itemsArr.forEach(str => {
+                    const match = str.match(/(.+?)\s*\(x(\d+)\)/);
+                    if(match) {
+                        const pName = match[1];
+                        const qty = parseInt(match[2]);
+                        const product = DB.products.find(p => p.name === pName);
+                        
+                        let imgSrc = '';
+                        let priceHtml = '';
+                        
+                        if (product) {
+                            const fallbackCode = `this.onerror=null; this.src='${getFallback(product.name)}';`;
+                            imgSrc = `<img src="${product.img}" class="w-16 h-16 object-cover rounded-lg border border-gray-200 bg-white" onerror="${fallbackCode}">`;
+                            priceHtml = `<p class="text-organic-600 font-bold text-sm">${app.formatMoney(product.price)} <span class="text-gray-400 font-medium text-xs ml-1">x ${qty}</span></p>`;
+                        } else {
+                            // Phòng trường hợp sản phẩm đã bị Admin xóa khỏi CSDL
+                            imgSrc = `<div class="w-16 h-16 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center"><i data-lucide="package" class="text-gray-400 w-6 h-6"></i></div>`;
+                            priceHtml = `<p class="text-gray-500 font-medium text-sm">Số lượng: ${qty}</p>`;
+                        }
+
+                        itemsHtml += `
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                                ${imgSrc}
+                                <div class="flex-grow">
+                                    <p class="font-bold text-gray-800 text-sm line-clamp-2">${pName}</p>
+                                    ${priceHtml}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                itemsContainer.innerHTML = itemsHtml;
+
+                lucide.createIcons();
+                const modal = document.getElementById('modal-order-details');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            },
+
+            closeOrderDetailsModal: () => {
+                const modal = document.getElementById('modal-order-details');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             },
 
             // ================== USER PROFILE LOGIC ==================
