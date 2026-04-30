@@ -211,7 +211,7 @@
                                         <input type="radio" name="paymentMethod" value="Chuyển khoản ngân hàng" class="w-5 h-5 text-blue-600 focus:ring-blue-500 cursor-pointer">
                                         <div class="ml-3">
                                             <span class="block font-bold text-gray-800">Chuyển khoản ngân hàng</span>
-                                            <span class="block text-xs text-gray-500">Nhân viên sẽ gọi điện hướng dẫn</span>
+                                            <span class="block text-xs text-gray-500">Quét mã QR tự động</span>
                                         </div>
                                     </label>
                                 </div>
@@ -808,6 +808,106 @@
         </div>
     </div>
 
+    <!-- MODAL: CỔNG THANH TOÁN VIETQR CHUYÊN NGHIỆP -->
+    <div id="modal-payment-qr" class="fixed inset-0 bg-gray-900/95 z-[10005] hidden items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white rounded-2xl w-full max-w-4xl flex flex-col md:flex-row shadow-2xl overflow-hidden relative my-auto">
+            <!-- Left: Thông tin thanh toán -->
+            <div class="md:w-1/2 p-8 md:p-10 bg-gray-50 flex flex-col justify-between border-r border-gray-200">
+                <div>
+                    <div class="flex items-center space-x-2 mb-8">
+                        <div class="bg-organic-100 p-2 rounded-lg"><i data-lucide="leaf" class="text-organic-600 w-6 h-6"></i></div>
+                        <span class="text-xl font-extrabold text-gray-800">EcoMart Checkout</span>
+                    </div>
+                    
+                    <h3 class="text-gray-500 font-medium mb-2">Số tiền thanh toán</h3>
+                    <p id="ui-qr-amount" class="text-4xl font-extrabold text-blue-600 mb-8">0 đ</p>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <p class="text-xs text-gray-500 font-bold uppercase mb-1">Ngân hàng hưởng thụ</p>
+                            <p class="font-bold text-gray-800">Vietcombank (Ngân hàng TMCP Ngoại thương VN)</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-1">Số tài khoản & Chủ tài khoản</p>
+                                <p class="font-bold text-gray-800">0123456789</p>
+                                <p class="text-sm font-medium text-gray-600">CTY TNHH ECOMART VN</p>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-blue-600 font-bold uppercase mb-1">Nội dung chuyển khoản</p>
+                                <p id="ui-qr-content" class="font-extrabold text-blue-800 text-lg tracking-wider">ORD-XXXX</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-sm text-gray-500 flex items-start">
+                    <i data-lucide="info" class="w-5 h-5 mr-2 text-gray-400 flex-shrink-0"></i>
+                    <p>Hệ thống sẽ tự động duyệt đơn hàng của bạn trong vòng 1-3 phút sau khi nhận được tiền. Vui lòng giữ nguyên màn hình này.</p>
+                </div>
+            </div>
+            
+            <!-- Right: QR Code & Actions -->
+            <div class="md:w-1/2 p-8 md:p-10 flex flex-col items-center justify-center bg-white text-center">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Quét mã QR để thanh toán</h3>
+                <p class="text-gray-500 text-sm mb-6">
+                    Sử dụng 
+                    <b onclick="app.simulateQRFail()" class="cursor-pointer text-blue-600 hover:text-blue-800 transition" title="Nhấn để mô phỏng lỗi thanh toán">App Ngân hàng</b> 
+                    hoặc 
+                    <b onclick="app.simulateQRFail()" class="cursor-pointer text-pink-500 hover:text-pink-700 transition" title="Nhấn để mô phỏng lỗi thanh toán">Momo/ZaloPay</b>
+                </p>
+                
+                <!-- QR Code Box (VietQR API) - Bấm vào đây để mô phỏng quét thành công -->
+                <div id="ui-qr-box" onclick="app.simulateQRScan()" class="bg-white border-2 border-dashed border-blue-300 p-4 rounded-2xl mb-6 shadow-sm relative cursor-pointer hover:border-blue-500 transition group" title="Nhấn vào mã QR để mô phỏng quét thành công">
+                    <img id="ui-qr-img" src="" alt="VietQR Code" class="w-56 h-56 md:w-64 md:h-64 object-contain group-hover:opacity-70 transition duration-300">
+                    <div class="absolute inset-0 border-4 border-blue-500 rounded-2xl animate-pulse pointer-events-none opacity-20 group-hover:opacity-40 transition"></div>
+                    
+                    <!-- Lớp phủ Tích xanh (Mặc định ẩn) -->
+                    <div id="ui-qr-success" class="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-2xl hidden flex-col items-center justify-center z-20">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                            <i data-lucide="check-circle" class="text-green-500 w-12 h-12"></i>
+                        </div>
+                        <span class="font-bold text-green-600 text-lg">Đã thanh toán!</span>
+                    </div>
+
+                    <!-- Lớp phủ Thất bại (Mặc định ẩn) -->
+                    <div id="ui-qr-error" class="absolute inset-0 bg-white/95 backdrop-blur-md rounded-2xl hidden flex-col items-center justify-center z-30 cursor-default" onclick="event.stopPropagation()">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-3 shadow-sm border border-red-200">
+                            <i data-lucide="x-circle" class="text-red-500 w-10 h-10"></i>
+                        </div>
+                        <span class="font-bold text-red-600 text-lg leading-tight">Giao dịch thất bại</span>
+                        <span class="text-xs font-medium text-gray-500 mt-1 px-4">Tài khoản không đủ số dư hoặc lỗi mạng.</span>
+                    </div>
+                </div>
+                
+                <!-- Loading State & Action Buttons -->
+                <div class="w-full">
+                    <div id="ui-qr-loading" class="flex justify-center items-center text-blue-600 font-bold mb-8 transition-all">
+                        <i data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></i> Đang chờ thanh toán...
+                    </div>
+
+                    <div id="ui-qr-buttons-normal" class="w-full space-y-3">
+                        <button type="button" onclick="app.cancelBankPayment()" class="w-full bg-white hover:bg-gray-50 text-gray-600 font-bold py-3.5 rounded-xl border border-gray-200 transition flex justify-center items-center">
+                            Hủy giao dịch
+                        </button>
+                    </div>
+
+                    <!-- Khu vực Nút bấm khi bị lỗi -->
+                    <div id="ui-qr-buttons-error" class="w-full space-y-3 hidden">
+                        <button type="button" onclick="app.retryBankPayment()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition shadow-md flex justify-center items-center">
+                            <i data-lucide="refresh-ccw" class="w-5 h-5 mr-2"></i> Thanh toán lại
+                        </button>
+                        <button type="button" onclick="app.cancelBankPayment()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3.5 rounded-xl border border-red-200 transition flex justify-center items-center">
+                            Hủy thanh toán
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT APP LOGIC -->
     <script>
         // --- 1. DỮ LIỆU GIẢ LẬP ---
@@ -847,11 +947,12 @@
                 cart: [],
                 orders: [
                     { id: "ORD-9991", user: "khachhang", name: "Nguyễn Khách", phone: "0901234567", address: "123 Đường ABC, Quận 1, TP.HCM", date: "10/04/2026", total: 110000, status: "Đã giao thành công", items: "Cà rốt hữu cơ Đà Lạt (1kg) (x2), Cà chua Cherry hữu cơ (1kg) (x1)", payment: "Thanh toán khi nhận hàng (COD)" },
-                    { id: "ORD-9992", user: "khachhang", name: "Nguyễn Khách", phone: "0901234567", address: "123 Đường ABC, Quận 1, TP.HCM", date: "12/04/2026", total: 280000, status: "Đang chờ duyệt", items: "Thịt Bò Thăn Organic Úc (1kg) (x1)", payment: "Chuyển khoản ngân hàng" },
+                    { id: "ORD-9992", user: "khachhang", name: "Nguyễn Khách", phone: "0901234567", address: "123 Đường ABC, Quận 1, TP.HCM", date: "12/04/2026", total: 280000, status: "Đang chờ duyệt", items: "Thịt Bò Thăn Organic Úc (1kg) (x1)", payment: "Chuyển khoản (Đã thanh toán)" },
                     { id: "ORD-9993", user: "khachhang", name: "Nguyễn Khách", phone: "0901234567", address: "123 Đường ABC, Quận 1", date: "14/04/2026", total: 105000, status: "Đã giao thành công", items: "Chuối Laba sinh thái (1 nải) (x3)", payment: "Thanh toán khi nhận hàng (COD)" }
                 ],
                 category: 'Tất cả',
-                searchKeyword: '' // Lưu từ khóa tìm kiếm
+                searchKeyword: '',
+                pendingOrder: null // Lưu trữ tạm thời đơn hàng đang đợi thanh toán chuyển khoản
             },
 
             // --- LƯU TRỮ TRÌNH DUYỆT (LOCAL STORAGE) ---
@@ -1413,7 +1514,6 @@
                 const phone = document.getElementById('txtCheckoutPhone').value.trim();
                 const address = document.getElementById('txtCheckoutAddress').value.trim();
                 
-                // Lấy phương thức thanh toán đang được chọn
                 let paymentMethod = "Thanh toán khi nhận hàng (COD)";
                 const paymentRadio = document.querySelector('input[name="paymentMethod"]:checked');
                 if(paymentRadio) paymentMethod = paymentRadio.value;
@@ -1422,28 +1522,66 @@
                     return app.toast("Vui lòng điền đầy đủ thông tin giao hàng!", "error");
                 }
 
-                // Kiểm tra định dạng số điện thoại (bắt buộc 10 chữ số, bắt đầu bằng số 0)
                 const phoneRegex = /^0\d{9}$/;
                 if (!phoneRegex.test(phone)) {
                     document.getElementById('txtCheckoutPhone').focus();
                     return app.toast("Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số (VD: 0901234567).", "error");
                 }
 
-                // Cập nhật tồn kho (Trừ kho ngay lập tức)
-                for (let item of app.state.cart) {
-                    const dbProd = DB.products.find(p => p.id === item.id);
-                    if(dbProd) {
-                        dbProd.stock -= item.qty;
+                const total = app.state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+                const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+
+                // Nếu chọn Chuyển khoản -> Mở Cổng thanh toán VietQR
+                if (paymentMethod === "Chuyển khoản ngân hàng") {
+                    app.state.pendingOrder = { id: orderId, name, phone, address, total, paymentMethod: "Chuyển khoản (Đã thanh toán)" };
+                    
+                    document.getElementById('ui-qr-amount').innerText = app.formatMoney(total);
+                    document.getElementById('ui-qr-content').innerText = orderId;
+                    
+                    // Sử dụng VietQR API để tạo mã thật
+                    const qrUrl = `https://img.vietqr.io/image/vcb-0123456789-compact2.png?amount=${total}&addInfo=${orderId}&accountName=CTY%20TNHH%20ECOMART%20VN`;
+                    document.getElementById('ui-qr-img').src = qrUrl;
+
+                    // Reset trạng thái hiển thị (Đề phòng có lưu lỗi từ lần bấm trước)
+                    app.retryBankPayment(); 
+                    const successOverlay = document.getElementById('ui-qr-success');
+                    if(successOverlay) {
+                        successOverlay.classList.add('hidden');
+                        successOverlay.classList.remove('flex');
                     }
+                    const loadingText = document.getElementById('ui-qr-loading');
+                    if(loadingText) {
+                        loadingText.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></i> Đang chờ thanh toán...`;
+                        loadingText.className = 'flex justify-center items-center text-blue-600 font-bold mb-8 transition-all';
+                    }
+                    const qrBox = document.getElementById('ui-qr-box');
+                    if(qrBox) qrBox.classList.remove('pointer-events-none');
+                    
+                    const qrModal = document.getElementById('modal-payment-qr');
+                    qrModal.classList.remove('hidden');
+                    qrModal.classList.add('flex');
+                    lucide.createIcons();
+                    return;
                 }
 
-                const total = app.state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+                // Nếu chọn COD -> Tạo đơn hàng ngay
+                app.finalizeOrder(orderId, name, phone, address, total, paymentMethod);
+            },
+
+            // Hàm thực thi tạo đơn hàng chung
+            finalizeOrder: (orderId, name, phone, address, total, paymentMethod) => {
+                // Trừ kho
+                for (let item of app.state.cart) {
+                    const dbProd = DB.products.find(p => p.id === item.id);
+                    if(dbProd) dbProd.stock -= item.qty;
+                }
+
                 const itemsStr = app.state.cart.map(i => `${i.name} (x${i.qty})`).join(', ');
                 const today = new Date();
                 const dateStr = `${today.getDate().toString().padStart(2,'0')}/${(today.getMonth()+1).toString().padStart(2,'0')}/${today.getFullYear()}`;
 
                 const newOrder = {
-                    id: "ORD-" + Math.floor(1000 + Math.random() * 9000),
+                    id: orderId,
                     user: app.state.user.username,
                     name: name,
                     phone: phone,
@@ -1452,23 +1590,122 @@
                     total: total,
                     status: "Đang chờ duyệt",
                     items: itemsStr,
-                    payment: paymentMethod // Lưu phương thức thanh toán vào Database
+                    payment: paymentMethod
                 };
 
                 app.state.orders.unshift(newOrder); 
                 app.state.cart = [];
-                app.syncStorage(); // Cập nhật LocalStorage
+                app.syncStorage();
                 app.updateCartBadge();
                 
                 document.getElementById('txtCheckoutPhone').value = '';
                 document.getElementById('txtCheckoutAddress').value = '';
                 
-                // Reset phương thức thanh toán về mặc định
                 const codRadio = document.querySelector('input[name="paymentMethod"][value="Thanh toán khi nhận hàng (COD)"]');
                 if (codRadio) codRadio.checked = true;
 
                 app.toast("Đặt hàng thành công! Đơn hàng đang được chờ duyệt.");
                 app.navigate('dashboard-user');
+            },
+
+            // --- CÁC HÀM XỬ LÝ CỔNG THANH TOÁN (VIETQR GATEWAY) ---
+            simulateQRScan: () => {
+                const successOverlay = document.getElementById('ui-qr-success');
+                const loadingText = document.getElementById('ui-qr-loading');
+                const normalBtns = document.getElementById('ui-qr-buttons-normal');
+                const qrBox = document.getElementById('ui-qr-box');
+                
+                // Tránh click nhiều lần
+                if(qrBox) qrBox.classList.add('pointer-events-none');
+                
+                // Hiển thị tích xanh
+                if (successOverlay) {
+                    successOverlay.classList.remove('hidden');
+                    successOverlay.classList.add('flex');
+                }
+                
+                // Đổi chữ trạng thái
+                if (loadingText) {
+                    loadingText.innerHTML = `<i data-lucide="check-circle-2" class="w-5 h-5 mr-2"></i> Xác nhận thành công!`;
+                    loadingText.className = 'flex justify-center items-center text-green-600 font-bold mb-8 transition-all';
+                    lucide.createIcons();
+                }
+
+                // Ẩn nút hủy trong quá trình xử lý thành công
+                if (normalBtns) normalBtns.classList.add('hidden');
+
+                // Chờ 1.5 giây để khách kịp nhìn thấy tích xanh, sau đó mới tạo đơn hàng
+                setTimeout(() => {
+                    app.confirmBankPayment();
+                    
+                    // Khôi phục giao diện ngầm
+                    if(qrBox) qrBox.classList.remove('pointer-events-none');
+                    if(normalBtns) normalBtns.classList.remove('hidden');
+                }, 1500);
+            },
+
+            simulateQRFail: () => {
+                const errorOverlay = document.getElementById('ui-qr-error');
+                const loadingText = document.getElementById('ui-qr-loading');
+                const normalBtns = document.getElementById('ui-qr-buttons-normal');
+                const errorBtns = document.getElementById('ui-qr-buttons-error');
+                const qrBox = document.getElementById('ui-qr-box');
+
+                if(qrBox) qrBox.classList.add('pointer-events-none'); // Chặn không cho ấn vào QR nữa
+
+                if (errorOverlay) {
+                    errorOverlay.classList.remove('hidden');
+                    errorOverlay.classList.add('flex');
+                }
+                
+                if (loadingText) loadingText.classList.add('hidden');
+                if (normalBtns) normalBtns.classList.add('hidden');
+                if (errorBtns) errorBtns.classList.remove('hidden');
+                
+                app.toast("Giao dịch bị từ chối từ ngân hàng!", "error");
+            },
+
+            retryBankPayment: () => {
+                const errorOverlay = document.getElementById('ui-qr-error');
+                const loadingText = document.getElementById('ui-qr-loading');
+                const normalBtns = document.getElementById('ui-qr-buttons-normal');
+                const errorBtns = document.getElementById('ui-qr-buttons-error');
+                const qrBox = document.getElementById('ui-qr-box');
+
+                if(qrBox) qrBox.classList.remove('pointer-events-none');
+
+                if (errorOverlay) {
+                    errorOverlay.classList.add('hidden');
+                    errorOverlay.classList.remove('flex');
+                }
+                
+                if (loadingText) loadingText.classList.remove('hidden');
+                if (normalBtns) normalBtns.classList.remove('hidden');
+                if (errorBtns) errorBtns.classList.add('hidden');
+            },
+
+            confirmBankPayment: () => {
+                const po = app.state.pendingOrder;
+                
+                // Đóng modal thanh toán
+                document.getElementById('modal-payment-qr').classList.add('hidden');
+                document.getElementById('modal-payment-qr').classList.remove('flex');
+                
+                // Thực thi tạo đơn hàng
+                app.finalizeOrder(po.id, po.name, po.phone, po.address, po.total, po.paymentMethod);
+                app.state.pendingOrder = null;
+            },
+
+            cancelBankPayment: () => {
+                app.state.pendingOrder = null;
+                
+                // Đóng Modal
+                document.getElementById('modal-payment-qr').classList.add('hidden');
+                document.getElementById('modal-payment-qr').classList.remove('flex');
+                
+                app.toast("Đã hủy quá trình thanh toán chuyển khoản.", "error");
+                // Đưa người dùng về trang chủ
+                app.navigate('home');
             },
 
             getStatusClass: (status) => {
