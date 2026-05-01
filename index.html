@@ -623,9 +623,15 @@
             </div>
             <div class="p-6 overflow-y-auto flex-grow space-y-4">
                 <input type="hidden" id="txtProdId" value="">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Tên sản phẩm *</label>
-                    <input type="text" id="txtProdName" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-organic-500" placeholder="VD: Cà rốt hữu cơ...">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-1">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Mã SP *</label>
+                        <input type="text" id="txtProdCode" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-organic-500 font-mono text-sm uppercase" placeholder="VD: SP001">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Tên sản phẩm *</label>
+                        <input type="text" id="txtProdName" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-organic-500" placeholder="VD: Cà rốt hữu cơ...">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -1298,6 +1304,7 @@
                 }
 
                 const fallbackCode = `this.onerror=null; this.src='${getFallback(p.name)}';`;
+                const pCode = p.code || ('SP0' + p.id); // Lấy mã SP hoặc dùng mã mặc định
 
                 document.getElementById('ui-detail-container').innerHTML = `
                     <div class="flex flex-col md:flex-row gap-10">
@@ -1305,7 +1312,10 @@
                             <img src="${p.img}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="${fallbackCode}" alt="${p.name}" class="w-full rounded-2xl object-cover shadow-sm border border-gray-100 aspect-square bg-white">
                         </div>
                         <div class="md:w-1/2 flex flex-col justify-center">
-                            <span class="inline-block bg-organic-100 text-organic-700 font-bold px-3 py-1 rounded-lg text-sm w-max mb-4">${p.category}</span>
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="inline-block bg-organic-100 text-organic-700 font-bold px-3 py-1 rounded-lg text-sm w-max">${p.category}</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 font-bold px-3 py-1 rounded-lg text-sm w-max">Mã: ${pCode}</span>
+                            </div>
                             <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">${p.name}</h2>
                             <p class="text-3xl font-extrabold text-organic-600 mb-6">${app.formatMoney(p.price)}</p>
                             
@@ -2084,6 +2094,7 @@
                     let statusHtml = '';
                     let rowClass = 'hover:bg-gray-50 border-b border-gray-50 transition';
                     const fallbackCode = `this.onerror=null; this.src='${getFallback(p.name)}';`;
+                    const pCode = p.code || ('SP0' + p.id);
                     
                     if (p.stock === 0) {
                         statusHtml = '<span class="bg-red-100 text-red-700 px-3 py-1 rounded font-bold text-xs border border-red-200"><i data-lucide="alert-triangle" class="w-3 h-3 inline mr-1"></i>Hết hàng</span>';
@@ -2100,7 +2111,7 @@
                         <td class="p-4 w-16"><img src="${p.img}" onerror="${fallbackCode}" class="w-12 h-12 object-cover rounded-lg border border-gray-200 bg-white"></td>
                         <td class="p-4">
                             <div class="font-bold text-gray-800">${p.name}</div>
-                            <div class="text-xs text-gray-500 font-medium">${p.category}</div>
+                            <div class="text-xs text-gray-500 font-medium mt-1"><span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded mr-1">${pCode}</span> ${p.category}</div>
                         </td>
                         <td class="p-4 text-center font-extrabold ${p.stock <= 5 ? 'text-red-600' : 'text-gray-700'} text-lg">${p.stock}</td>
                         <td class="p-4 text-right">${statusHtml}</td>
@@ -2204,6 +2215,7 @@
                 let html = '';
                 DB.products.forEach(p => {
                     const fallbackCode = `this.onerror=null; this.src='${getFallback(p.name)}';`;
+                    const pCode = p.code || ('SP0' + p.id);
                     
                     html += `
                         <tr class="hover:bg-gray-50 border-b border-gray-50 ${p.hidden ? 'opacity-50' : ''}">
@@ -2212,7 +2224,7 @@
                             </td>
                             <td class="p-4">
                                 <div class="font-bold text-gray-800">${p.name}</div>
-                                <div class="text-xs text-gray-500 font-medium">${p.category}</div>
+                                <div class="text-xs text-gray-500 font-medium mt-1"><span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded mr-1">Mã: ${pCode}</span> ${p.category}</div>
                             </td>
                             <td class="p-4">
                                 <div class="font-extrabold text-organic-600 mb-1">${app.formatMoney(p.price)}</div>
@@ -2242,6 +2254,7 @@
                 if(id) {
                     const p = DB.products.find(x => x.id === id);
                     document.getElementById('txtProdId').value = p.id;
+                    document.getElementById('txtProdCode').value = p.code || ('SP0' + p.id);
                     document.getElementById('txtProdName').value = p.name;
                     document.getElementById('selProdCat').value = p.category;
                     document.getElementById('txtProdPrice').value = p.price;
@@ -2252,6 +2265,7 @@
                 } else {
                     // Reset form
                     document.getElementById('txtProdId').value = '';
+                    document.getElementById('txtProdCode').value = '';
                     document.getElementById('txtProdName').value = '';
                     if (DB.categories.length > 0) document.getElementById('selProdCat').value = DB.categories[0];
                     document.getElementById('txtProdPrice').value = '';
@@ -2389,6 +2403,7 @@
 
             saveProduct: () => {
                 const id = document.getElementById('txtProdId').value;
+                const code = document.getElementById('txtProdCode').value.trim().toUpperCase(); // Tự động viết hoa mã
                 const name = document.getElementById('txtProdName').value.trim();
                 const category = document.getElementById('selProdCat').value;
                 const price = parseInt(document.getElementById('txtProdPrice').value);
@@ -2397,19 +2412,26 @@
                 const desc = document.getElementById('txtProdDesc').value.trim();
                 const fullDesc = document.getElementById('txtProdFullDesc').value.trim();
 
-                if(!name || !price || isNaN(stock)) return app.toast("Vui lòng điền đủ Tên, Giá và Tồn kho hợp lệ!", "error");
+                if(!code || !name || !price || isNaN(stock)) return app.toast("Vui lòng điền đủ Mã SP, Tên, Giá và Tồn kho hợp lệ!", "error");
+
+                // Kiểm tra xem mã SP có bị trùng với sản phẩm khác không
+                const isDuplicateCode = DB.products.some(x => (x.code || 'SP0'+x.id).toUpperCase() === code && x.id != id);
+                if(isDuplicateCode) {
+                    document.getElementById('txtProdCode').focus();
+                    return app.toast(`Mã sản phẩm "${code}" đã tồn tại. Vui lòng chọn mã khác!`, "error");
+                }
 
                 if(id) {
                     // Cập nhật
                     const p = DB.products.find(x => x.id == id);
-                    p.name = name; p.category = category; p.price = price; 
+                    p.code = code; p.name = name; p.category = category; p.price = price; 
                     p.stock = stock; p.img = img; p.desc = desc; p.fullDesc = fullDesc;
                     app.toast("Cập nhật thông tin sản phẩm thành công!");
                 } else {
                     // Thêm mới
                     const newId = DB.products.length > 0 ? Math.max(...DB.products.map(p => p.id)) + 1 : 1;
                     DB.products.unshift({
-                        id: newId, name, category, price, stock, img, desc, fullDesc, hidden: false
+                        id: newId, code, name, category, price, stock, img, desc, fullDesc, hidden: false
                     });
                     app.toast("Đã thêm sản phẩm mới vào cửa hàng!");
                 }
